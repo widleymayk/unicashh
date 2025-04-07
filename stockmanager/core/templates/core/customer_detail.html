@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Customer Details</h2>
+        <div class="btn-group" role="group">
+            <a href="{% url 'customer_update' customer.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'customer_delete' customer.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <a href="{% url 'customer_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="card-title">Basic Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Name</dt>
+                        <dd class="col-sm-8">{{ customer.name }}</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">{{ customer.email }}</dd>
+
+                        <dt class="col-sm-4">Phone</dt>
+                        <dd class="col-sm-8">{{ customer.phone }}</dd>
+
+                        <dt class="col-sm-4">Address</dt>
+                        <dd class="col-sm-8">{{ customer.address }}</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="card-title">Pet Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Has Pets</dt>
+                        <dd class="col-sm-8">
+                            {% if customer.has_pets %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">Pet Notes</dt>
+                        <dd class="col-sm-8">
+                            {% if customer.pet_notes %}
+                                {{ customer.pet_notes|linebreaks }}
+                            {% else %}
+                                <em>No pet notes available</em>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">Loyalty Points</dt>
+                        <dd class="col-sm-8">{{ customer.loyalty_points }}</dd>
+
+                        <dt class="col-sm-4">Customer Since</dt>
+                        <dd class="col-sm-8">{{ customer.created_at|date:"F d, Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

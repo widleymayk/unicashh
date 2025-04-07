@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-box"></i>
+        {% if object %}
+            Editar Produto
+        {% else %}
+            Novo Produto
+        {% endif %}
+    </h2>
+    <a href="{% url 'product_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_name" class="form-label">Nome</label>
+                    <input type="text" name="name" id="id_name" class="form-control" value="{{ object.name|default:'' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_brand" class="form-label">Marca</label>
+                    <input type="text" name="brand" id="id_brand" class="form-control" value="{{ object.brand|default:'' }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Descrição</label>
+                <textarea name="description" id="id_description" class="form-control" rows="3">{{ object.description|default:'' }}</textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="id_category" class="form-label">Categoria</label>
+                    <select name="category" id="id_category" class="form-select" required>
+                        {% for value, label in form.fields.category.choices %}
+                        <option value="{{ value }}" {% if object.category == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_animal_type" class="form-label">Tipo de Animal</label>
+                    <select name="animal_type" id="id_animal_type" class="form-select" required>
+                        {% for value, label in form.fields.animal_type.choices %}
+                        <option value="{{ value }}" {% if object.animal_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_price" class="form-label">Preço</label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        <input type="number" name="price" id="id_price" class="form-control" step="0.01" value="{{ object.price|default:'' }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="id_stock_quantity" class="form-label">Quantidade em Estoque</label>
+                    <input type="number" name="stock_quantity" id="id_stock_quantity" class="form-control" value="{{ object.stock_quantity|default:0 }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_minimum_stock" class="form-label">Estoque Mínimo</label>
+                    <input type="number" name="minimum_stock" id="id_minimum_stock" class="form-control" value="{{ object.minimum_stock|default:0 }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_expiration_date" class="form-label">Data de Validade</label>
+                    <input type="date" name="expiration_date" id="id_expiration_date" class="form-control" value="{{ object.expiration_date|date:'Y-m-d'|default:'' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_weight" class="form-label">Peso</label>
+                    <input type="number" name="weight" id="id_weight" class="form-control" step="0.01" value="{{ object.weight|default:'' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="id_weight_unit" class="form-label">Unidade de Peso</label>
+                    <input type="text" name="weight_unit" id="id_weight_unit" class="form-control" value="{{ object.weight_unit|default:'kg' }}">
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}
