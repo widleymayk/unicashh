@@ -1,8 +1,8 @@
-# Unichash - Sistema de Gerenciamento de Estoque
+# Unicash - Sistema de Gerenciamento de Estoque
 
 ## Sobre o Projeto
 
-O Unichash é um sistema de gerenciamento de estoque desenvolvido especialmente para pet shops, oferecendo uma solução completa para controle de produtos, clientes, vendas e inventário. Com uma interface intuitiva e recursos abrangentes, o sistema ajuda a otimizar as operações diárias do seu pet shop.
+O Unicash é um sistema de gerenciamento de estoque desenvolvido especialmente para pet shops, oferecendo uma solução completa para controle de produtos, clientes, vendas e inventário. Com uma interface intuitiva e recursos abrangentes, o sistema ajuda a otimizar as operações diárias do seu pet shop.
 
 ## Funcionalidades Principais
 
