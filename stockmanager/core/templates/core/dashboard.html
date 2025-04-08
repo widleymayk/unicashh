@@ -26,12 +26,15 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="#">Unichash</a>
+            <a class="navbar-brand" href="/dashboard/">Unichash</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sales/">Vendas</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="/dashboard/">Painel de Controle</a>
                     </li>
@@ -49,7 +52,92 @@
 
     <div class="container py-5">
         <h2 class="mb-4">Bem-vindo ao Sistema de Gerenciamento</h2>
-        
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Produtos</h5>
+                        <h2>{{ products_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Clientes</h5>
+                        <h2>{{ customers_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Vendas Hoje</h5>
+                        <h2>{{ today_sales_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Estoque Baixo</h5>
+                        <h2>{{ low_stock_count }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Vendas Recentes</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            {% for sale in recent_sales %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Venda #{{ sale.id }}</h6>
+                                    <small>{{ sale.date|date:"d/m/Y" }}</small>
+                                </div>
+                                <p class="mb-1">Cliente: {{ sale.customer.name }}</p>
+                            </div>
+                            {% empty %}
+                            <div class="list-group-item">Nenhuma venda recente</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="card-title mb-0">Produtos com Estoque Baixo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            {% for product in low_stock_products %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ product.name }}</h6>
+                                    <small class="text-danger">Estoque: {{ product.stock_quantity }}</small>
+                                </div>
+                                <p class="mb-1">Mínimo: {{ product.minimum_stock }}</p>
+                            </div>
+                            {% empty %}
+                            <div class="list-group-item">Nenhum produto com estoque baixo</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access Cards -->
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
                 <div class="card feature-card h-100">
@@ -99,13 +187,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            window.location.href = '/login/';
-        });
-
         // Check for authentication
         const accessToken = localStorage.getItem('access_token');
         if (!accessToken) {
@@ -164,6 +245,28 @@
 
         // Initial token verification
         verifyToken();
+
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+                // Send logout request to server
+                await fetch('/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Clear tokens and redirect regardless of server response
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace('/login/');
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Product, Customer, InventoryMovement, Sale, SaleItem
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -47,6 +47,12 @@ def login_view(request):
 
 def register_view(request):
     return render(request, 'core/register.html')
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return JsonResponse({'detail': 'Successfully logged out'}, status=200)
+    return JsonResponse({'detail': 'Method not allowed'}, status=405)
 
 from rest_framework_simplejwt.tokens import RefreshToken
 

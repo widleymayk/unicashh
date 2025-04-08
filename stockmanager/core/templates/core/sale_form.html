@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% load form_filters %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{% if form.instance.pk %}Editar{% else %}Nova{% endif %} Venda</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.customer.id_for_label }}">Cliente</label>
+                            {{ form.customer|addclass:"form-control" }}
+                            {% if form.customer.errors %}
+                                <div class="text-danger">
+                                    {{ form.customer.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}">Método de Pagamento</label>
+                            {{ form.payment_method|addclass:"form-control" }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger">
+                                    {{ form.payment_method.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.notes.id_for_label }}">Observações</label>
+                            {{ form.notes|addclass:"form-control" }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger">
+                                    {{ form.notes.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'sale_list' %}" class="btn btn-secondary">Voltar</a>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
