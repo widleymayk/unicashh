@@ -1,47 +1,38 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - UNICASH</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .login-header h1 {
-            color: #0d6efd;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        .form-floating {
-            margin-bottom: 1rem;
-        }
-        .btn-login {
-            width: 100%;
-            padding: 0.8rem;
-            font-size: 1.1rem;
-        }
-    </style>
-</head>
-<body>
+{% extends 'core/auth_base.html' %}
+
+{% block title %}Login - UNICASH{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .login-header h1 {
+        color: #0d6efd;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    .btn-login {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="login-container">
             <div class="login-header">
@@ -49,6 +40,7 @@
                 <p class="text-muted">Sistema de Gerenciamento de Estoque</p>
             </div>
             <form id="loginForm">
+                {% csrf_token %}
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control" id="username" placeholder="Nome de usuário" required>
                     <label for="username">Nome de usuário</label>
@@ -75,10 +67,13 @@
             const errorDiv = document.getElementById('loginError');
 
             try {
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
                 const response = await fetch('/api/token/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
                     },
                     body: JSON.stringify({ username, password })
                 });
@@ -87,8 +82,6 @@
                     const data = await response.json();
                     localStorage.setItem('access_token', data.access);
                     localStorage.setItem('refresh_token', data.refresh);
-                    
-                    // Redirect to dashboard after successful login
                     window.location.href = '/dashboard/';
                 } else {
                     errorDiv.textContent = 'Usuário ou senha inválidos';
@@ -100,5 +93,4 @@
             }
         });
     </script>
-</body>
-</html>
+{% endblock %}

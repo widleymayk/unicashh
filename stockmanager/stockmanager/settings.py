@@ -89,8 +89,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'stockmanager.wsgi.application'
 
 # CSRF Settings
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = False  # Set to False for development
+CSRF_COOKIE_HTTPONLY = False  # Set to False for development
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -155,5 +155,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'widleywmss@gmail.com'
-EMAIL_HOST_PASSWORD = ''  # You'll need to set up an App Password in your Google Account
+EMAIL_HOST_PASSWORD = 'rlxjaqxpyvwcqqzb'  # App Password for Gmail SMTP
 DEFAULT_FROM_EMAIL = 'widleywmss@gmail.com'

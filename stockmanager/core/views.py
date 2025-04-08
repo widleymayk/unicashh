@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Product, Customer, InventoryMovement, Sale, SaleItem
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -8,27 +9,32 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 import json
 
 def login_view(request):
-    print("Login attempt - Debug info:")
-    print(f"Request method: {request.method}")
-    print(f"Is user authenticated: {request.user.is_authenticated}")
-    
     if request.user.is_authenticated:
-        print(f"User {request.user.username} is already authenticated, redirecting to dashboard")
         return redirect('dashboard')
     
-    # Add CSRF token to the response
-    response = render(request, 'core/login.html')
-    response['X-CSRFToken'] = request.COOKIES.get('csrftoken')
-    print(f"CSRF token added to response: {response['X-CSRFToken']}")
-    return response
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Usuário ou senha inválidos')
+    
+    return render(request, 'core/login.html')
 
 def register_view(request):
     return render(request, 'core/register.html')
 
-@csrf_exempt
+from rest_framework_simplejwt.tokens import RefreshToken
+
 def register_api(request):
     if request.method == 'POST':
         try:
@@ -43,7 +49,12 @@ def register_api(request):
                 return JsonResponse({'error': 'Username already exists'}, status=400)
             
             user = User.objects.create_user(username=username, password=password)
-            return JsonResponse({'message': 'User created successfully'}, status=201)
+            refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'message': 'User created successfully',
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            }, status=201)
             
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
@@ -54,7 +65,16 @@ def register_api(request):
 
 @login_required(login_url='/login/')
 def dashboard_view(request):
-    return render(request, 'core/dashboard.html')
+    today = timezone.now().date()
+    context = {
+        'products_count': Product.objects.count(),
+        'customers_count': Customer.objects.count(),
+        'today_sales_count': Sale.objects.filter(created_at__date=today).count(),
+        'low_stock_count': Product.objects.filter(stock_quantity__lte=models.F('minimum_stock')).count(),
+        'recent_sales': Sale.objects.order_by('-created_at')[:5],
+        'low_stock_products': Product.objects.filter(stock_quantity__lte=models.F('minimum_stock'))[:5]
+    }
+    return render(request, 'core/dashboard.html', context)
 
 class ProductListView(LoginRequiredMixin, ListView):
     login_url = '/login/'

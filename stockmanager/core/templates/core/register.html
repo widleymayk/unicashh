@@ -67,6 +67,45 @@
                 </div>
                 <div class="alert alert-danger mt-3 d-none" id="registerError"></div>
             </form>
+            <script>
+                document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    const errorDiv = document.getElementById('registerError');
+
+                    if (password !== confirmPassword) {
+                        errorDiv.textContent = 'As senhas não coincidem';
+                        errorDiv.classList.remove('d-none');
+                        return;
+                    }
+
+                    try {
+                        const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+                        
+                        const response = await fetch('/api/register/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrftoken
+                            },
+                            body: JSON.stringify({ username, password })
+                        });
+
+                        if (response.ok) {
+                            window.location.href = '/login/';
+                        } else {
+                            const data = await response.json();
+                            errorDiv.textContent = data.error || 'Erro ao criar conta';
+                            errorDiv.classList.remove('d-none');
+                        }
+                    } catch (error) {
+                        errorDiv.textContent = 'Erro ao conectar ao servidor';
+                        errorDiv.classList.remove('d-none');
+                    }
+                });
+            </script>
         </div>
     </div>
 
