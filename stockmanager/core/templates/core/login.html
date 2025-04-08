@@ -1,4 +1,5 @@
 {% extends 'core/auth_base.html' %}
+{% load static %}
 
 {% block title %}Login - UNICASH{% endblock %}
 
@@ -49,48 +50,12 @@
                     <input type="password" class="form-control" id="password" placeholder="Senha" required>
                     <label for="password">Senha</label>
                 </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-login">Entrar</button>
-                    <a href="/register/" class="btn btn-outline-secondary">Criar Nova Conta</a>
-                </div>
-                <div class="alert alert-danger mt-3 d-none" id="loginError"></div>
+                <button type="submit" class="btn btn-primary btn-login">Entrar</button>
             </form>
         </div>
     </div>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('loginError');
-
-            try {
-                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                
-                const response = await fetch('/api/token/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('access_token', data.access);
-                    localStorage.setItem('refresh_token', data.refresh);
-                    window.location.href = '/dashboard/';
-                } else {
-                    errorDiv.textContent = 'Usuário ou senha inválidos';
-                    errorDiv.classList.remove('d-none');
-                }
-            } catch (error) {
-                errorDiv.textContent = 'Erro ao conectar ao servidor';
-                errorDiv.classList.remove('d-none');
-            }
-        });
-    </script>
+{% block extra_js %}
+<script src="{% static 'js/auth.js' %}"></script>
 {% endblock %}

@@ -11,24 +11,39 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 import json
+from django.db import models
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+        except json.JSONDecodeError:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
         
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
             login(request, user)
+            if request.content_type == 'application/json':
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh)
+                })
             return redirect('dashboard')
         else:
+            if request.content_type == 'application/json':
+                return JsonResponse({'detail': 'Invalid credentials'}, status=401)
             messages.error(request, 'Usuário ou senha inválidos')
     
     return render(request, 'core/login.html')
+
 
 def register_view(request):
     return render(request, 'core/register.html')
@@ -69,9 +84,9 @@ def dashboard_view(request):
     context = {
         'products_count': Product.objects.count(),
         'customers_count': Customer.objects.count(),
-        'today_sales_count': Sale.objects.filter(created_at__date=today).count(),
+        'today_sales_count': Sale.objects.filter(date__date=today).count(),
         'low_stock_count': Product.objects.filter(stock_quantity__lte=models.F('minimum_stock')).count(),
-        'recent_sales': Sale.objects.order_by('-created_at')[:5],
+        'recent_sales': Sale.objects.order_by('-date')[:5],
         'low_stock_products': Product.objects.filter(stock_quantity__lte=models.F('minimum_stock'))[:5]
     }
     return render(request, 'core/dashboard.html', context)
