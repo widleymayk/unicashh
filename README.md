@@ -1,4 +1,4 @@
-# Unichash - Sistema de Gerenciamento de Estoque
+# Unicash - Sistema de Gerenciamento de Estoque
 
 ## Sobre o Projeto
 
